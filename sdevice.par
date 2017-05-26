@@ -1,0 +1,630 @@
+Region = "Oxide_1" {
+
+HydrogenDiffusion  {
+	
+	HydrogenIon {
+		d0 = 1		##Di
+		Ed = 0.7	##Edi
+		atd = 0		##atd
+		n0 = @PConc@	##[Xi]0
+		krec = 0	##ri
+	}
+	
+	HydrogenMolecule {
+		d0 = 1e-4	##Di
+		Ed = 0.2	##Edi
+		atd = 0		##atd
+		n0 = @H2Conc@	##[Xi]0
+		krec = 0	##ri
+	}
+	
+	HydrogenAtom {
+		d0 = 1e-4	##Di
+		Ed = 0.2	##Edi
+		atd = 0		##atd
+		n0 = 1e13	##[Xi]0
+		krec = 0	##ri
+	}
+}
+
+
+Epsilon
+{ *  Ratio of the permittivities of material and vacuum
+
+  * epsilon() = epsilon
+	epsilon	= 3.9	# [1]
+}
+
+
+Epsilon_aniso
+{ *  Ratio of the permittivities of material and vacuum
+
+  * epsilon() = epsilon
+	epsilon	= 3.9	# [1]
+}
+
+
+RefractiveIndex
+{ *  Optical Refractive Index
+
+  * refractiveindex() = refractiveindex * (1 + alpha * (T-Tpar))
+	Tpar	= 3.0000e+02	# [K]
+	refractiveindex	= 1.46	# [1]
+	alpha	= 2.0000e-04	# [1/K]
+
+  * Gain dependence of refractive index in active region:
+  * a) Linear model: delta n = a0 * ( (n+p)/2 - N0 )
+  * b) Logarithmic model: delta n = a0 * log ( (n+p)/(2 * N0) )
+  * where n/p are the carrier densities in the active region. 
+	a0	= 0.0000e+00	# [cm^3 or 1]
+	N0	= 1.0000e+18	# [1/cm^3]
+}
+
+
+ComplexRefractiveIndex
+{ *  Complex refractive index model: n_complex = n + i*k (unitless)
+  *  
+  *  with n = n_0 + delta_n_lambda + delta_n_T + delta_n_carr + delta_n_gain 
+  *       k = k_0 + delta_k_lambda             + delta_k_carr                
+  
+  * Base refractive index and extinction coefficient: 
+  *    n_0, k_0 
+  
+  * Wavelength dependence (real and imag): 
+  *    Formula 0: delta_n_lambda = Cn_lambda * lambda + Dn_lambda * lambda^2 
+  *               delta_k_lambda = Ck_lambda * lambda + Dk_lambda * lambda^2 
+  *    Formula 1: Read tabulated values 
+  *               NumericalTable (...)  
+  *    Formula 2: Read tabulated values from file 
+  *               NumericalTable = <string> 
+  *    Formula 3: Read tabulated values from ODB Table 
+  
+  * Temperature dependence (real): 
+  *    delta_n_T = n_0 * ( Cn_temp * (T-Tpar)) 
+  
+  * Carrier dependence (real) 
+  *    delta_n_carr = - Cn_carr * (const.) * (n/m_e + p/m_h) 
+  
+  * Carrier dependence (imag) 
+  *    delta_k_carr = 1 / (4*PI) * (wavelength^Gamma_k_carr_e*Ck_carr_e*n + wavelength^Gamma_k_carr_h*Ck_carr_h*p) 
+  
+  * Gain dependence (real) 
+  *    lin: delta_n_gain = Cn_gain * ( (n+p)/2 - Npar ) 
+  *    log: delta_n_gain = Cn_gain * log ( (n+p)/(2 - Npar ) )
+	n_0	= 1.46	# [1]
+	k_0	= 0.0000e+00	# [1]
+	Cn_lambda	= 0.0000e+00	# [um^-1]
+	Dn_lambda	= 0.0000e+00	# [um^-2]
+	Ck_lambda	= 0.0000e+00	# [um^-1]
+	Dk_lambda	= 0.0000e+00	# [um^-2]
+	Cn_temp	= 2.0000e-04	# [K^-1]
+	Cn_carr	= 1	# [1]
+	Ck_carr	= 0.0000e+00 ,	0.0000e+00	# [cm^2]
+	Gamma_k_carr	= 1 ,	1	# [1]
+	Cn_gain	= 0.0000e+00	# [cm^3]
+	Npar	= 1.0000e+18	# [cm^-3]
+       Formula = 0
+	Tpar	= 3.0000e+02	# [K]
+} 
+
+
+* SpectralConversion
+* { * Spectral Conversion Model
+*   No default model, user has to define.
+*   All wavelength parameters should be in nanometers.
+*   Choice of Analytic or NumericalTable selected in Physics section of region
+*  
+*   ConversionEfficiency = float     * ratio of absorbed photons that are reemitted.
+*   AbsorptionScaling = float        * scale absorption
+*   EmissionScaling = float          * scale emission
+*   Analytic (
+*     AbsorptionProfile = (
+*        Gaussian(lambda0 sigma peakvalue dc_offset lambda_range0 lambda_range1)
+*        Lorentzian(lambda0 width peakvalue dc_offset lambda_range0 lambda_range1)
+*        ...
+*     )
+*     EmissionProfile = (
+*        Gaussian(lambda0 sigma peakvalue dc_offset lambda_range0 lambda_range1)
+*        Lorentzian(lambda0 width peakvalue dc_offset lambda_range0 lambda_range1)
+*        ...
+*     )
+*   )
+*   NumericalTable (
+*     AbsorptionProfile = (
+*        lambda0 value0
+*        lambda1 value1
+*        ...
+*     )
+*     EmissionProfile = (
+*        lambda0 value0
+*        lambda1 value1
+*        ...
+*     )
+
+*   ConversionEfficiency = 1.0
+* }
+
+
+LatticeHeatCapacity
+{ *  lumped electron-hole-lattice heat capacity
+
+  * cv() = cv + cv_b * T + cv_c * T^2 + cv_d * T^3 
+	cv	= 1.67	# [J/(K cm^3)]
+	cv_b	= 0.0000e+00	# [J/(K^2 cm^3)]
+	cv_c	= 0.0000e+00	# [J/(K^3 cm^3)]
+	cv_d	= 0.0000e+00	# [J/(K^4 cm^3)]
+}
+
+
+Kappa
+{ *  Lattice thermal conductivity
+
+  * Formula = 1:
+  * kappa() = kappa + kappa_b * T + kappa_c * T^2 
+	kappa	= 0.014	# [W/(K cm)]
+	kappa_b	= 0.0000e+00	# [W/(K^2 cm)]
+	kappa_c	= 0.0000e+00	# [W/(K^3 cm)]
+}
+
+
+Kappa_aniso
+{ *  Lattice thermal conductivity
+
+  * Formula = 1:
+  * kappa() = kappa + kappa_b * T + kappa_c * T^2 
+	kappa	= 0.014	# [W/(K cm)]
+	kappa_b	= 0.0000e+00	# [W/(K^2 cm)]
+	kappa_c	= 0.0000e+00	# [W/(K^3 cm)]
+}
+
+Bandgap
+{ * Eg = Eg0 + alpha Tpar^2 / (beta + Tpar) - alpha T^2 / (beta + T)
+  * Parameter 'Tpar' specifies the value of lattice 
+  * temperature, at which parameters below are defined
+  * Chi0 is electron affinity.
+	Chi0	= 0.9	# [eV]
+	Eg0	= 9	# [eV]
+	alpha	= 0.0000e+00	# [eV K^-1]
+	beta	= 0.0000e+00	# [K]
+	alpha2	= 0.0000e+00	# [eV K^-1]
+	beta2	= 0.0000e+00	# [K]
+	EgMin	= -1.0000e+01	# [eV]
+	dEgMin	= 0.0000e+00	# [eV]
+	Tpar	= 0.0000e+00	# [K]
+}
+
+FreeCarrierAbsorption
+{
+  * Coefficients for free carrier absorption:
+  * fcaalpha_n for electrons,
+  * fcaalpha_p for holes
+
+  * FCA = (alpha_n * n + alpha_p * p) * Light Intensity
+	fcaalpha_n	= 4.0000e-18	# [cm^2]
+	fcaalpha_p	= 8.0000e-18	# [cm^2]
+}
+
+QWStrain
+{
+  * Zincblende crystals:
+  *   Parameters: a_nu, a_c, b, C_12, C_11
+  *   StrainConstant eps (formula = 1) or lattice constant
+  *   a0 (formula = 2) for energy shift of quantum-well
+  *   subbands.
+  *   a0(T) = a0 + alpha (T-Tpar)
+
+  * Wurtzite crystals:
+  *   Parameters: a_c, D1, D2, D3, D4, C_13, C_33
+  *   Lattice constants a0 and c0 (formula 2 must be used)
+  *   a0(T) = a0 + alpha (T-Tpar)
+  *   c0(T) = c0 + alpha (T-Tpar)
+
+	  * Default formula	= 1	# [1]
+	eps	= 0.0000e+00	# [1]
+	a0	= 3.1890e-10	# [cm]
+	alpha	= 0.0000e+00	# [cm/K]
+	Tpar	= 3.0000e+02	# [K]
+	a_nu	= 0.0000e+00	# [eV]
+	a_c	= -4.0800e+00	# [eV]
+	b_shear	= 0.0000e+00	# [eV]
+	c_11	= 0.0000e+00	# [1e-2 GPa]
+	c_12	= 0.0000e+00	# [1e-2 GPa]
+	d1	= -8.9000e-01	# [eV]
+	d2	= 4.27	# [eV]
+	d3	= 5.18	# [eV]
+	d4	= -2.5900e+00	# [eV]
+	c_13	= 1	# [1e-2 GPa]
+	c_33	= 3.92	# [1e-2 GPa]
+	c0	= 5.1850e-10	# [cm]
+}
+
+eDOSMass
+{
+  * For effective mass specificatition Formula1 (me approximation):
+  * or Formula2 (Nc300) can be used :
+	Formula	= 2	# [1]
+  * Formula1:
+  * me/m0 = [ (6 * mt)^2 *  ml ]^(1/3) + mm
+  * mt = a[Eg(0)/Eg(T)] 
+  * Nc(T) = 2(2pi*kB/h_Planck^2*me*T)^3/2 = 2.540e19 ((me/m0)*(T/300))^3/2 
+	Nc300 = @Nc@
+}
+
+hDOSMass
+{
+  * For effective mass specificatition Formula1 (mh approximation):
+  * or Formula2 (Nv300) can be used :
+	Formula	= 2	# [1]
+  * Formula1:
+  * mh =  m0*{[(a+bT+cT^2+dT^3+eT^4)/(1+fT+gT^2+hT^3+iT^4)]^(2/3) + mm}
+  * Nv(T) = 2(2pi*kB/h_Planck^2*mh*T)^3/2 = 2.540e19 ((mh/m0)*(T/300))^3/2 
+  	Nv300 = @Nv@
+
+}
+
+SchroedingerParameters:
+{ * For the hole masses for Schroedinger equation you can
+  * use different formulas.
+  * 0: use the isotropic density of states effective mass
+  * 1: (for materials with Si-like hole band structure)
+  *    m(k)/m0=1/(A+-sqrt(B+C*((xy)^2+(yz)^2+(zx)^2)))
+  *    where k=(x,y,z) is unit normal vector in reziprocal
+  *    space.  '+' for light hole band, '-' for heavy hole band
+  * 2: Heavy hole mass mh and light hole mass ml are
+  *    specified explicitly.
+  *    Use me as electron mass for free-carrier effect in 
+  *    the refractive index model.
+  * For electron masses, the following formula options exist:
+  * 0: use the isotropic density of states effective mass
+  * 1: (for materials with Si-like hole band structure)
+  *    use the a, ml, and mm parameters from eDOSMass.
+  *    Typically, this leads to anisotropy.
+  * formula<0 means no default model and no default parameters
+  *   are available, so you have to provide values for
+  *   'formula' and the respective parameters in order to use
+  *   this parameter set.
+	formula	= 0 ,	2	# [1]
+  * Formula(hole) 2 parameters:
+	ml	= 0.629961	# [1]
+	mh	= 0.629961	# [1]
+	me	= 0.07	# [1]
+  * Lifting of degeneracy of bulk valleys. The value for
+  * electrons is added to the band edge for the subband
+  * ladder of lower degeneracy if positive, and subtracted
+  * from the band edge for the ladder of higher degeneracy
+  * if negative. (that is, the value of the band edge is
+  * always increased).  For holes, the value is subtracted from
+  * the band edge for the heavy hole band is positive,
+  * add added tp that of the light hole band if
+  * negative.  The signs are such that the shift always
+  * moves the band edges 'outward', away from midgap.  The
+  * gap itself is defined as the separation of the
+  * unshifted band edges and remains unaffected.
+	offset	= 0.0000e+00 ,	0.0000e+00	# [eV]
+  * Alternative to the specification of formula, offset,
+  * and masses, you can make an arbitrary number of ladder
+  * specification, 'eLadder(mz, mxy, deg, dE) and hLadder(...)
+  * Here, mz is the quantization mass, mxy an in-plane DOS mass,
+  * deg the ladder degeneracy, and dE an shift of the band edge
+  * for the ladder (non-negative; the shift is always outward,
+  * away from midgap).  When present, we solve the Schroedinger
+  * equation separately for each ladder
+
+  * Temperatures in rescaling of the mxy for eLadder and hLadder
+	ShiftTemperature	= 1.0000e+10 ,	1.0000e+10	# [K]
+}
+
+QuantumPotentialParameters
+{ * gamma:  weighting factor for quantum potential
+  * theta:  weight for quadratic term
+  * xi:     weight for quasi Fermi potential
+  * eta:    weight for electrostatic potential
+  * nu :    weight for DOS mass change from stress
+	gamma	= 1 ,	1	# [1]
+	theta	= 0.5 ,	0.5	# [1]
+	xi	= 1 ,	1	# [1]
+	eta	= 1 ,	1	# [1]
+	nu	= 0.0000e+00 ,	0.0000e+00	# [1]
+}
+
+ConstantMobility:
+{ * mu_const = mumax (T/T0)^(-Exponent)
+	mumax	= 20 ,	1e-5	# [cm^2/(Vs)]
+	Exponent	= 2.5 ,	2.2	# [1]
+	mutunnel	= 0.05 ,	0.05	# [cm^2/(Vs)]
+}
+
+ConstantMobility_aniso:
+{ * mu_const = mumax (T/T0)^(-Exponent)
+	mumax	= 0.05 ,	1	# [cm^2/(Vs)]
+	Exponent	= 2.5 ,	2.2	# [1]
+	mutunnel	= 0.05 ,	0.05	# [cm^2/(Vs)]
+}
+
+PooleFrenkel
+{ * TrapXsection = Xsec0*(1+Gpf) 
+  * Gpf = (1+(a-1)*exp(a))/a^2-0.5 
+  * where 
+  *       a = (1/kT)*(q^3*F/pi/e0/epsPF)^0.5, 
+  *       F is the electric field. 
+	epsPF	= 3.9 ,	3.9	# [1]
+}
+
+RadiativeRecombination * coefficients:
+{ * R_Radiative = C * (T/Tpar)^alpha * (n p - ni_eff^2)
+  * C    
+  * alpha 
+	C	= 0.0000e+00	# [cm^3/s]
+	alpha	= 0.0000e+00	# []
+}
+
+Radiation
+{ * G = g * D * ((E+E0)/(E+E1))^m  -  the generation term, 
+  *  where E is the electric field, 
+  *        E0, E1, m are constants to account the recombination, 
+  *        g is the electron-hole creation rate , 
+  *        D is the dose rate defined in the input file. 
+	g	= 7.6000e+12	# [1/(rad*cm^3)]
+	E0	= 0.1	# [V/cm]
+	E1	= 2.0000e+05	# [V/cm]
+	m	= 0.9	# [1]
+}
+
+Traps
+{ 
+  *     G is degeneracy factor 
+	G	= 1 ,	1	# [1]
+
+  *     XsecFormula=1: Xsec(F) = Xsec 
+  *     XsecFormula=2: Xsec(F) = Xsec*(1+a1*(F/F0)^p1+a2*(F/F0)^p2)^p0, F0 = 1 V/cm 
+  *     XsecFormula=3: Xsec(F) = Xsec*(1+Gt), Gt is Hurkx TATunneling factor 
+  *     XsecFormula=4: Xsec(F) = Xsec*(1+Gpf), Gpf is Poole-Frenkel factor 
+  *     XsecFormula=5: Xsec(F) = Nasyrov model 
+	XsecFormula	= 1 ,	 1	# [1]
+	Xsec	= 1.0000e-12 ,	6.8000e-14	# [cm^2]
+	a1	= 0.0000e+00 ,	0.0000e+00	# [1]
+	p1	= 1 ,	1	# [1]
+	a2	= 0.0000e+00 ,	0.0000e+00	# [1]
+	p2	= 1 ,	1	# [1]
+	p0	= 1 ,	1	# [1]
+
+  *     VthFormula=1: Vth(T) = Vth*(T/300)^1/2 
+  *     VthFormula=2: Vth(T) = (3*k*T/m_300)^1/2, 
+  *                            m_300 is DOS mass calculated at T=300 
+	VthFormula	= 1 ,	1	# [1]
+	Vth	= 2.0420e+07 ,	1.5626e+07	# [cm/s]
+	Jcoef	= @pjcoef@,	@pjcoef@	# [1]
+
+  *     Tunneling to traps is determined by the interaction volume
+  *     TrapVolume, the Huang-Rhys factor, and the Phonon energy.
+	TrapVolume	= 0.0000e+00	# [um^3]
+	HuangRhys	= 0.0000e+00	# [1]
+	PhononEnergy	= 0.0000e+00	# [eV]
+	alpha	= 1	# [1]
+
+  *     Constant emission rate term
+	ConstEmissionRate	= 0.0000e+00 ,	0.0000e+00	# [1/s]
+
+
+}
+
+	BarrierTunneling  "NLM"
+		{ * Non Local Barrier Tunneling 
+  		* G(r) = g*A*T/kB*F(r)*Pt(r)*ln[(1+exp((E(r)-Es)/kB/T))/(1+exp((E(r)-Em)/kB/T))]
+		* where: 
+  		*     Pt(r) is WKB approximation for the tunneling probability 
+		*     g = As/A, As is the Richardson constant for carriers in semiconductor
+  		*     A is the Richardson constant for free electrons 
+		*     F(r) is the electric field 
+  		*     E(r) is carrier energy 
+  		*     Es is carrier quasi fermi energy in semiconductor
+  		*     Em is carrier fermi energy in metal 
+  		*     alpha is the prefactor for quantum potential correction 
+  		*     eoffset and hoffset are lists of band offsets
+			g	= 2.1 ,	0.66	# [1]
+			mt	= 0.42 ,	0.58	# [1]
+			alpha	= 0.0000e+00 ,	0.0000e+00	# [1]
+			eoffset = () # eV
+			hoffset = () # eV
+	}
+	
+}
+
+RegionInterface = "Oxide_1/Silicon_1" {
+ThermionicEmission {
+	A = 2, 2 # [1]
+	B = 4, 4 # [1]
+	C = 1, 1 # [1]
+}
+
+HydrogenDiffusion  {
+	HydrogenIon {
+		d0 = 1		##Di
+		Ed = 1		##Edi
+		atd = 0		##atd
+		n0 =1e-300	##[Xi]0
+		krec = 0 	##ri
+	}
+	
+	HydrogenMolecule {
+		d0 = 1e-4	##Di
+		Ed = 0.2	##Edi
+		atd = 0		##atd
+		n0 = 1e-300	##[Xi]0
+		krec = 0 	##ri
+	}
+	
+	HydrogenAtom {
+		d0 = 1e-4	##Di
+		Ed = 0.2	##Edi
+		atd = 0		##atd
+		n0 = 1e13	##[Xi]0
+		krec = 0	##ri
+	}
+}
+
+pmi_ce_msc {
+	plot=1
+	debug=1
+	nb_states=4
+	nb_transitions=7
+	
+	sindex0=0
+	sindex1=1
+	sindex2=2
+	sindex3=3
+	tindex0=0
+	tindex1=1
+	tindex2=2
+	tindex3=3
+	tindex4=4
+	tindex5=5
+	tindex6=6
+	
+	E_g=1.12416 # Silicon E_g
+	N_C=2.8567e+19 # Silicon N_C
+	N_V=3.1046e+19 # Silicon N_V
+	Reference_E_T=2 # Valence band
+	Tm=1e50
+	Tg=1e40
+	
+	
+	s0_charge=0
+	s1_charge=1
+	s2_charge=0
+	s3_charge=-1
+	
+	s0_E_charge=0
+	s1_E_charge=-1
+	s2_E_charge=0
+	s3_E_charge=1
+	
+	t0_formula=8
+	t1_formula=8
+	t2_formula=8
+	t3_formula=8
+	t4_formula=0
+	t5_formula=0
+	t6_formula=0
+	
+	t0_s0=1  ##to state
+	t0_s1=2  ##from state
+	t1_s0=2  ##to state
+	t1_s1=1  ##from state
+	t2_s0=3  ##to state
+	t2_s1=2  ##from state
+	t3_s0=2  ##to state
+	t3_s1=3  ##from state
+	t4_s0=0  ##to state
+	t4_s1=1  ##from state
+	t5_s0=1  ##to state
+	t5_s1=0  ##from state
+	t6_s0=0  ##to state
+	t6_s1=2  ##from state
+				
+	t0_E_T=0.675
+	t1_E_T=0.675
+	t2_E_T=0.225
+	t3_E_T=0.225
+	t3_E_T=0
+	t4_E_T=0
+	t5_E_T=0
+	t6_E_T=0
+		
+	t0_Eact=0
+	t1_Eact=0
+	t2_Eact=0
+	t3_Eact=0
+	t4_Eact=1.3
+	t5_Eact=0.6
+	t6_Eact=1.3
+		
+	t0_sigma=1e-12
+	t1_sigma=1e-12
+	t2_sigma=1e-16
+	t3_sigma=1e-16
+	t4_sigma=@t2sigma@
+	t5_sigma=@t3sigma@
+	t6_sigma=@t4sigma@
+	
+	t0_vth=2.042e7
+	t1_vth=2.042e7
+	t2_vth=1.562e7
+	t3_vth=1.562e7
+	t4_vth=1.754e5
+	t5_vth=1.754e5
+	t6_vth=1.754e5
+	
+	t0_CB_nb_particles=0 
+	t0_VB_nb_particles=1 
+	 
+	t1_CB_nb_particles=1  
+	t1_VB_nb_particles=0 	
+
+	t2_CB_nb_particles=1  
+	t2_VB_nb_particles=0 	
+
+	t3_CB_nb_particles=0  
+	t3_VB_nb_particles=1
+	
+	t4_CB_nb_particles=1  
+	t4_VB_nb_particles=0
+	
+	t5_CB_nb_particles=0  
+	t5_VB_nb_particles=1
+	
+	t6_CB_nb_particles=0  
+	t6_VB_nb_particles=0     
+}
+
+}
+
+Material = "Silicon" {
+	BarrierTunneling  "NLM"
+		{ * Non Local Barrier Tunneling 
+  		* G(r) = g*A*T/kB*F(r)*Pt(r)*ln[(1+exp((E(r)-Es)/kB/T))/(1+exp((E(r)-Em)/kB/T))]
+		* where: 
+  		*     Pt(r) is WKB approximation for the tunneling probability 
+		*     g = As/A, As is the Richardson constant for carriers in semiconductor
+  		*     A is the Richardson constant for free electrons 
+		*     F(r) is the electric field 
+  		*     E(r) is carrier energy 
+  		*     Es is carrier quasi fermi energy in semiconductor
+  		*     Em is carrier fermi energy in metal 
+  		*     alpha is the prefactor for quantum potential correction 
+  		*     eoffset and hoffset are lists of band offsets
+			g	= 2.1 ,	0.66	# [1]
+			mt	= 0.42 ,	0.58	# [1]
+			alpha	= 0.0000e+00 ,	0.0000e+00	# [1]
+			eoffset = () # eV
+			hoffset = () # eV
+	}
+	
+	HydrogenDiffusion  {
+		HydrogenIon {
+			d0 = 1		##Di
+			Ed = 0.4	##Edi
+			atd = 0		##atd
+			n0 = 1e-300	##[Xi]0
+			krec = 0	##ri
+		}
+		
+		HydrogenMolecule {
+			d0 = 1e-4	##Di
+			Ed = 2.4	##Edi
+			atd = 0		##atd
+			n0 =@H2Conc@	##[Xi]0
+			krec = 0	##ri
+		}
+		HydrogenAtom {
+			d0 = 1e-4	##Di
+			Ed = 0.2	##Edi
+			atd = 0		##atd
+			n0 = 1e13	##[Xi]0
+			krec = 0	##ri
+		}
+	}
+}
+
+
+
